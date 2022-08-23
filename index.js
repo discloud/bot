@@ -8,9 +8,7 @@ const client = new Client({
     ]
 })
 
-client.slashCommands = new Collection()
-
 module.exports = client
+client.slashCommands = new Collection()
 require('./handler/events')()
-
 client.login(process.env.token)

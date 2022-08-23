@@ -6,15 +6,15 @@ const client = require('../index')
 module.exports = async () => {
 
     const commands = []
-    const folders = readdirSync('./commands/slashCommands')
+    const folders = readdirSync('./commands')
 
     for (let dir of folders) {
 
-        const commandsData = readdirSync(`./commands/slashCommands/${dir}/`).filter(file => file.endsWith('.js'))
+        const commandsData = readdirSync(`./commands/${dir}/`).filter(file => file.endsWith('.js'))
 
         for await (let file of commandsData) {
 
-            const cmd = require(`../commands/slashCommands/${dir}/${file}`)
+            const cmd = require(`../commands/${dir}/${file}`)
 
             if (cmd && cmd.name) {
                 client.slashCommands.set(cmd.name, cmd);
@@ -26,7 +26,7 @@ module.exports = async () => {
     const rest = new REST({ version: "10" }).setToken(process.env.token)
 
     await rest.put(
-        Routes.applicationCommands('1011268475844563024'),
+        Routes.applicationCommands(client.user.id),
         { body: commands },
     );
 
