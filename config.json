@@ -1,0 +1,5 @@
+{
+    "botId": "ID DO BOT AQUI",
+    "subDomain": "Subdomio do seu site (caso tenha)",
+    "token": "Nada de token por aqui, ok? Qualquer pessoa com um conhecimento básico pode te roubar, então, use o .env :)"
+}

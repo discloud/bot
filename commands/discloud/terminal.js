@@ -1,5 +1,6 @@
 const axios = require('axios')
 const { EmbedBuilder } = require('discord.js')
+const config = require('../../config.json')
 require('dotenv').config()
 
 module.exports = {
@@ -13,10 +14,11 @@ module.exports = {
             content: '🔄 | Solicitando o conteúdo do terminal a Discloud Host.',
             fetchReply: true
         })
-
+        
         /**
          * ID_DO_BOT_OU_SUBDOMINIO_DO_SEU_SITE
          * Literalmente, use o ID do seu bot ou o Sub-Dominio do seu site.
+         * config.botId ou config.subDomain
          */
         return axios.get(`https://api.discloud.app/v2/app/ID_DO_BOT_OU_SUBDOMINIO_DO_SEU_SITE/logs`, {
             headers: {
