@@ -1,7 +1,6 @@
 const axios = require('axios')
 const { EmbedBuilder } = require('discord.js')
 const config = require('../../config.json')
-require('dotenv').config()
 
 module.exports = {
     name: 'backup',
@@ -20,7 +19,7 @@ module.exports = {
          * Literalmente, use o ID do seu bot ou o Sub-Dominio do seu site.
          * config.botId ou config.subDomain
          */
-        return axios.get(`https://api.discloud.app/v2/app/${config.subDomain}/backup`, {
+        return axios.get(`https://api.discloud.app/v2/app/ID_DO_BOT_OU_SUBDOMINIO_DO_SEU_SITE/backup`, {
             headers: {
                 /**
                  * O token da API está no arquivo .env por segurança.
@@ -48,10 +47,6 @@ module.exports = {
             //         url: 'LINK_PRA_DOWNLOAD'
             //     }
             // }
-
-            // "small" é o conteúdo do terminal limitado para caber dentro da Descrição da embed.
-            // Se o seu terminal exceder o tamanho limite da embed, irá ocasionar um erro.
-            // Então, de prefêrencia, use o small.
 
             const downloadLink = data.backups.url
 

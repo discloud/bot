@@ -1,7 +1,6 @@
 const axios = require('axios')
 const { EmbedBuilder } = require('discord.js')
 const config = require('../../config.json')
-require('dotenv').config()
 
 module.exports = {
     name: 'terminal',
