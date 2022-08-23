@@ -3,7 +3,7 @@ const config = require('../../config.json')
 
 module.exports = {
     name: 'restart',
-    description: 'Link de backup da aplicação',
+    description: 'Reinicie a aplicação',
     type: 1,
     async execute({ interaction, client }) {
 
