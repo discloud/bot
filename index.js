@@ -1,3 +1,10 @@
+/**
+ * Este é um bot básico comum no Discloud para consumir a API da DISCLOUD.
+ * O código é feito por: Rody#1000 (Membro da Discloud)
+ * Autorizado por: PR#4003 (Fundador da Discloud)
+ * Analizado por: Serginho#8818 (Manager da Discloud)
+ */
+
 const { Client, GatewayIntentBits, Collection } = require('discord.js')
 require('dotenv').config()
 
