@@ -3,6 +3,7 @@
  * O código é feito por: Rody#1000 (Membro da Discloud)
  * Autorizado por: PR#4003 (Fundador da Discloud)
  * Analizado por: Serginho#8818 (Manager da Discloud)
+ * Construção da API: Gorniaky#2023 (Membro da Discloud) *Api em construção
  */
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js')
