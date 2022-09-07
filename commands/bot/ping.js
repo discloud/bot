@@ -1,11 +1,10 @@
 module.exports = {
     name: 'ping',
-    description: 'Ping pong',
+    description: 'See the latency between Discord servers and the bot',
     type: 1,
     async execute({ interaction, client }) {
 
-        await interaction.deferReply()
-        return await interaction.editReply({
+        return await interaction.reply({
             content: `🏓 | Pong: ${client.ws.ping}ms`
         })
         
