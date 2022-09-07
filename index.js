@@ -7,16 +7,30 @@
  */
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js')
-require('dotenv').config()
+require('dotenv/config')
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers
-    ]
-})
+// Recomendo colocar isso dentro de algum arquivo separado pra deixar mais organizado
+class Bot extends Client {
+    constructor(args) {
+        super({
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers
+            ]
+        });
+        this.slashCommands = new Collection();
+        this._token = process.env.token;
+        const eventHandler = require('./handler/events');
+        eventHandler();
+
+    }
+   
+}
+
+
+
+const client = new Bot();
+client.login(client._token);
+
 
 module.exports = client
-client.slashCommands = new Collection()
-require('./handler/events')()
-client.login(process.env.token)
