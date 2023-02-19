@@ -1,7 +1,7 @@
 from __future__ import annotations
 import typing as t
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 import discord
 
@@ -46,6 +46,12 @@ class Discloud(commands.Bot):
             ext = ".".join(file.parts) \
                      .removesuffix(".py")
             await self.load_extension(ext)
+
+        self._reset_apps_cache.start()
+
+    @tasks.loop(hours=1)
+    async def _reset_apps_cache(self) -> None:
+        self.app_manager._cache.clear()
 
 bot = Discloud()
 bot.run(utils.dotenv_get("TOKEN"), log_level=40)
