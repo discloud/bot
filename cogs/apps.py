@@ -16,10 +16,12 @@ import os
 if t.TYPE_CHECKING:
     from core import Discloud
 
+T = t.TypeVar("T")
+
 class Apps(commands.Cog):
     def __init__(self, bot: Discloud) -> None:
+        self.app_manager = bot.app_manager
         self.bot = bot
-        self.app_manager = utils.AppManager(bot)
 
     @app_commands.command(name="apps", description="Mostra todos os seus aplicativos na discloud")
     async def get_apps(self, interaction: discord.Interaction) -> None:
@@ -30,19 +32,16 @@ class Apps(commands.Cog):
             color=utils.DISCLOUD_COLOR
         )
 
-        chunks = discord.utils.as_chunks(apps, 25)
-        len_chunks = sum((1 for _ in chunks))
-
-        if len_chunks > 5:
+        apps = sorted(apps, key=lambda app: app.name, reverse=True)
+        chunks = list(discord.utils.as_chunks(apps, 25))
+        if len(chunks) > 5:
             return await interaction.response.send_message("Você tem tantos bots, que não é possível mostrar todos no discord! Por favor, use o site")
 
         view = discord.ui.View()
-
         for chunk in chunks:
             view.add_item(
                 views.SelectApp(
-                    apps=chunk, 
-                    manager=self.app_manager,
+                    apps=chunk,
                     bot=self.bot
                 )
             )
@@ -58,8 +57,8 @@ class Apps(commands.Cog):
         try:
             app = await self.app_manager.get_app(id)
         except RequestError as e:
-            await interaction.response.send_message(e.args[0], ephemeral=True)
-            return
+            return await interaction.response.send_message(e.args[0], ephemeral=True)
+
         await interaction.response.send_message(embed=app.to_embed(), view=app.dashboard(), ephemeral=True)
 
     @app_commands.command(name="commit", description="Commita os arquivos da sua aplicação na discloud")
@@ -71,13 +70,19 @@ class Apps(commands.Cog):
         try:
             app = await self.app_manager.get_app(id)
         except RequestError as e:
-            await interaction.response.send_message(e.args[0], ephemeral=True)
-            return
+            return await interaction.response.send_message(e.args[0], ephemeral=True)
+
         await file.save(Path("./commit.zip"))
         await app.commit(utils.File("commit.zip"))
         os.remove("./commit.zip")
 
         await interaction.response.send_message("Aplicação atualizada com sucesso!", ephemeral=True)
+
+    @commands.command(name="sync")
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context) -> None:
+        await self.bot.tree.sync()
+        await ctx.send("> Sincronizei os comandos com sucesso", delete_after=5)
 
 async def setup(bot: Discloud) -> None:
     cog = Apps(bot)

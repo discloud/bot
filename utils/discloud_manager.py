@@ -15,7 +15,6 @@ __all__ = (
     "File"
 )
 
-
 if t.TYPE_CHECKING:
     from core import Discloud
 
@@ -140,22 +139,25 @@ class App(discloud.discloud.Application):
 _KT = t.TypeVar("_KT")
 _VT = t.TypeVar("_VT")
 
+_VT_A: t.TypeAlias = t.Union[_VT, t.List[_VT]]
+_KT_A: t.TypeAlias = t.Union[_KT, t.Literal["all"]]
+
 class GenericCache(t.Generic[_KT, _VT]):
     """LRU Caching"""
     def __init__(self, size: int) -> None:
-        self._lru_order: OrderedDict[_KT, None] = OrderedDict()
-        self._cache: t.Dict[_KT, _VT] = {}
+        self._lru_order: OrderedDict[_KT_A, None] = OrderedDict()
+        self._cache: t.Dict[_KT_A, _VT_A] = {}
         self._size = size
 
-    def _update_lru(self, __key: _KT) -> None:
+    def _update_lru(self, __key: _KT_A) -> None:
         del self._lru_order[__key]
         self._lru_order[__key] = None
 
-    def __getitem__(self, __key: _KT) -> _VT:
+    def __getitem__(self, __key: _KT_A) -> _VT_A:
         self._update_lru(__key)
         return self._cache[__key]
 
-    def __setitem__(self, __key: _KT, __value: _VT) -> None:
+    def __setitem__(self, __key: _KT_A, __value: _VT_A) -> None:
         if __key in self._cache:
             self._update_lru(__key)
             self._cache[__key] = __value
@@ -167,15 +169,18 @@ class GenericCache(t.Generic[_KT, _VT]):
             self._cache[__key] = __value
             self._lru_order[__key] = None
 
-    def __contains__(self, __o: _KT) -> bool:
+    def __contains__(self, __o: _KT_A) -> bool:
         return __o in self._cache
+
+    def get_all(self) -> t.List[_VT]:
+        return self._cache["all"]
 
 class AppManager:
     def __init__(self, bot: Discloud) -> None:
         self._client = bot.discloud_client
         self.bot = bot
 
-        self._cache = GenericCache[str, t.Union[App, t.List[App]]](128)
+        self._cache = GenericCache[str, App](128)
 
     @staticmethod
     def _add_discord_attrs(app: AppData, usr: discord.User) -> AppDataWithDiscord:
@@ -208,14 +213,19 @@ class AppManager:
         self, target: t.Union[str, t.Literal["all"]]
     ) -> t.Union[t.List[App], App]:
         if target in self._cache:
+            if target != "all" and target in self._cache.get_all(): # `target` is cached on the `all` list
+                r = discord.utils.get(self._cache.get_all(), id=target)
+                if r:
+                    return r
             return self._cache[target]
 
+        req_error = discloud.errors.RequestError
         try:
             raw_result = await self._client.http.fetch_app(target)
-        except discloud.errors.RequestError as e:
-            raise discloud.errors.RequestError("O App solicitado não foi encontrado") from e
-        data: AppsPayload = raw_result.data
+        except req_error as e:
+            raise req_error("O App solicitado não foi encontrado") from e
 
+        data: AppsPayload = raw_result.data
         apps: t.Union[t.List[AppData], AppData] = data["apps"]
 
         if isinstance(apps, list):

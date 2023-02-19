@@ -6,19 +6,15 @@ import discord
 
 if t.TYPE_CHECKING:
     from core import Discloud
-    from utils import (
-        AppManager,  
-        App
-    )
+    from utils import App
 
 class SelectApp(ui.Select):
-    def __init__(self, apps: t.Iterable[App], bot: Discloud, manager: AppManager) -> None:
-        self.manager = manager
+    def __init__(self, apps: t.Iterable[App], bot: Discloud) -> None:
         self.client = bot.discloud_client
+        self.manager = bot.app_manager
         self.bot = bot
 
         options = [discord.SelectOption(label=app.fullname, value=app.id) for app in apps]
-        options = sorted(options, key=lambda x: x.label, reverse=True)
 
         super().__init__(
             placeholder="Aperte Aqui!",

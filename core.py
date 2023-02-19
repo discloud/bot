@@ -25,13 +25,18 @@ class Tree(app_commands.CommandTree):
         await super().on_error(interaction, error)
 
 class Discloud(commands.Bot):
+    if t.TYPE_CHECKING:
+        discloud_client: discloud.Client
+        app_manager: utils.AppManager
+        tree: Tree
+
     def __init__(self) -> None:
         self.discloud_client = discloud.Client(utils.dotenv_get("DISCLOUD_TOKEN"))
+        self.app_manager = utils.AppManager(self)
 
         intents = discord.Intents.default()
-        intents.message_content = True
         super().__init__(
-            command_prefix="",
+            command_prefix=commands.when_mentioned,
             intents=intents,
             tree_cls=Tree
         )
@@ -41,14 +46,6 @@ class Discloud(commands.Bot):
             ext = ".".join(file.parts) \
                      .removesuffix(".py")
             await self.load_extension(ext)
-
-    async def on_message(self, message: discord.Message, /) -> None:
-        if message.content.lower() == "!sync":
-            s = await self.tree.sync()
-            await message.channel.send(str(s))
-
-    async def on_ready(self) -> None:
-        print("ready")
 
 bot = Discloud()
 bot.run(utils.dotenv_get("TOKEN"), log_level=40)
