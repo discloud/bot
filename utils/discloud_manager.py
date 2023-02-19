@@ -174,6 +174,13 @@ class GenericCache(t.Generic[_KT, _VT]):
 
     def get_all(self) -> t.List[_VT]:
         return self._cache["all"]
+    
+    def clear(self) -> None:
+        self._cache.clear()
+        self._lru_order.clear()
+
+class AppNotFoundError(Exception):
+    ...
 
 class AppManager:
     def __init__(self, bot: Discloud) -> None:
@@ -212,18 +219,20 @@ class AppManager:
     async def get_app(
         self, target: t.Union[str, t.Literal["all"]]
     ) -> t.Union[t.List[App], App]:
-        if target in self._cache:
-            if target != "all" and target in self._cache.get_all(): # `target` is cached on the `all` list
-                r = discord.utils.get(self._cache.get_all(), id=target)
-                if r:
-                    return r
+        if target == "all" and "all" in self._cache:
+            return self._cache.get_all()
+
+        elif target != "all":
+            all_apps = self._cache.get_all()
+            app = discord.utils.find(lambda app: app.id == target, all_apps)
+            if app:
+                return app
             return self._cache[target]
 
-        req_error = discloud.errors.RequestError
         try:
             raw_result = await self._client.http.fetch_app(target)
-        except req_error as e:
-            raise req_error("O App solicitado não foi encontrado") from e
+        except discloud.errors.RequestError:
+            raise AppNotFoundError("O App solicitado não foi encontrado") from None
 
         data: AppsPayload = raw_result.data
         apps: t.Union[t.List[AppData], AppData] = data["apps"]
@@ -236,6 +245,8 @@ class AppManager:
         raw_app: AppData = apps
         app = await self._instantiate_apps([raw_app])
         app = app[0]
+        if not app:
+            raise AppNotFoundError("O App solicitado não foi encontrado")
 
         self._cache[target] = app
         return app
