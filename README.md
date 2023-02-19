@@ -21,6 +21,10 @@ git clone https://github.com/discloud/bot
         TOKEN - O Token do seu bot do Discord
         DISCLOUD_TOKEN - O seu token da API da Discloud
 
+4. Iniciando o bot:
+
+    Após seguir todos esses passos, você precisa sincornizar os comandos com o discord. Você pode fazer isso executando o comando `@{mention_do_bot} sync`
+
 ### Créditos
 Feito por [teilorr](https://github.com/teilorr)
 
